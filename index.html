@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de senhas</title>
+
+    <style>
+        body{
+            background: #0f172a;
+            color: #e5e7eb;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card{
+            background: #020617;
+            padding: 30px;
+            border-radius: 16px;
+            width: 350px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        h1{
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .password{
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            font-size: 18px;
+            word-break: break-all;
+            margin-bottom: 10px;
+
+        }
+        .strength{
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        input[type="range"]{
+            width: 100%;
+        }
+        .options{
+            margin: 15px 0;
+        }
+        button{
+            width: 100%;
+            padding: 12px;
+            background: #22c55e;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover{
+            opacity: 0.9;
+        }
+        .copy{
+            margin-top: 10px;
+            background: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Gerador de senhas</h1>
+        <div class="password" id="password">Clique em gerar</div>
+        <div class="stregth" id="strength"></div>
+
+        <label>Tamanho da senha: <strong id="sizeLabel">16</strong> </label>
+        <input type="range" min="8" max="32" value="16" id="size">
+
+        <div class="options">
+            Letras Maiusculas<br>
+            Letras Minusculas<br>
+            Números<br>
+            Caracteres Especiais
+        </div>
+
+        <button onclick="generatePassword()">Gerar senha</button>
+        <button class="copy" onclick="copyPassword()">Copiar senha</button>
+    </div>
+
+    <script>
+        const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const lower = "abcdefghijklmnopqrstuvwxyz";
+        const numbers = "0123456789";
+        const symbols = "!@#$%^&*()_+-{}[]<>?";
+
+        const passwordEl = document.getElementById("password");
+        const strengthEl = document.getElementById("strength");
+        const sizeEl = document.getElementById("size");
+        const sizeLabel = document.getElementById("sizeLabel");
+
+        sizeEl.oninput = () => sizeLabel.textContent = sizeEl.value;
+        function secureRandom(max) {
+            const array = new Uint32Array(1);
+            window.crypto.getRandomValues(array);
+            return array[0] % max;        
+        }
+        function generatePassword() {
+            const length = sizeEl.value;
+            const all = upper + lower + numbers + symbols;
+            let password = "";
+
+            password += upper[secureRandom(upper.length)];
+            password += lower[secureRandom(lower.length)];
+            password += numbers[secureRandom(numbers.length)];
+            password += symbols[secureRandom(symbols.length)];
+
+            for(let i = password.length; i< length; i++){
+                password += all[secureRandom(all.length)];
+            }
+
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+            passwordEl.textContent = password;
+            checkStrength(password);
+        }
+        function checkStrength(password){
+            let stregth = "Fraca";
+            let color = "#ef4444"
+
+            if (password.length >= 12){
+                stregth = "Media";
+                color = "#facc15"
+            }
+
+            if (password.length >= 16){
+                stregth = "forte";
+                color = "#22c55e"
+            }
+
+            strengthEl.textContent = `Força: ${stregth}`;
+            strengthEl.style.color = color;
+
+        }
+        function copyPassword(){
+            const text = passwordEl.textContent;
+            if (text === "clique em gerar") return;
+
+            navigator.clipboard.writeText(text);
+            alert("Senha copiada!");
+        }
+    </script>
+    
+</body>
+</html>
